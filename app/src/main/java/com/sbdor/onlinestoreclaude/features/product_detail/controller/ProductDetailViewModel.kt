@@ -8,9 +8,11 @@ import com.sbdor.onlinestoreclaude.features.favorites.models.Favorite
 import com.sbdor.onlinestoreclaude.features.products.data.IProductRepository
 import com.sbdor.onlinestoreclaude.features.products.models.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -27,6 +29,12 @@ class ProductDetailViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<ProductDetailState>(ProductDetailState.Initial)
     val state: StateFlow<ProductDetailState> = _state.asStateFlow()
+
+    // Channel for one-shot snackbar events.
+    // Unlike StateFlow, Channel does not replay the last value — each event is consumed once.
+    // This is the correct tool for UI events like snackbars, toasts, and navigation triggers.
+    private val _snackbarEvent = Channel<String>(Channel.BUFFERED)
+    val snackbarEvent = _snackbarEvent.receiveAsFlow()
 
     fun load(productId: Int) {
         viewModelScope.launch {
@@ -50,6 +58,9 @@ class ProductDetailViewModel @Inject constructor(
         val current = _state.value
         if (current is ProductDetailState.Completed) {
             _state.value = current.copy(addedToCart = true)
+            viewModelScope.launch {
+                _snackbarEvent.send("${product.name} added to cart")
+            }
         }
     }
 

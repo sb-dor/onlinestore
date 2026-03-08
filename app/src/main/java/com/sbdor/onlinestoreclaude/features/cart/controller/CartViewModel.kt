@@ -16,6 +16,21 @@ class CartViewModel @Inject constructor(
     private val _state = MutableStateFlow<CartState>(CartState.Initial)
     val state: StateFlow<CartState> = _state.asStateFlow()
 
+    // NOTICE: load() is a normal fun with NO viewModelScope.launch inside.
+    // This is because getCartItems() and getCartTotal() are regular synchronous functions
+    // (not suspend). They return immediately — no network, no delay, no async work.
+    // Contrast with ProductsViewModel.load() which uses viewModelScope.launch because
+    // productRepository.searchProducts() IS a suspend fun (simulates async work).
+    //
+    // ALTERNATIVE: if the cart were backed by a Room database, getCartItems() would be
+    // a suspend fun and you would need viewModelScope.launch here:
+    //
+    // fun load() {
+    //     viewModelScope.launch {
+    //         val items = cartRepository.getCartItems()  // suspend — database call
+    //         _state.value = if (items.isEmpty()) CartState.Empty else CartState.Completed(...)
+    //     }
+    // }
     fun load() {
         val items = cartRepository.getCartItems()
         _state.value = if (items.isEmpty()) {
@@ -28,6 +43,14 @@ class CartViewModel @Inject constructor(
         }
     }
 
+    // removeItem, increaseQuantity, decreaseQuantity all call load() after mutating state.
+    // This is a simple "mutate then reload" pattern — synchronous, no coroutines needed.
+    // ALTERNATIVE: if CartRepositoryImpl exposed a StateFlow or Flow of cart items,
+    // the ViewModel could collect it reactively and load() would not be needed at all:
+    //
+    // val state: StateFlow<CartState> = cartRepository.cartItems
+    //     .map { items -> if (items.isEmpty()) CartState.Empty else CartState.Completed(items) }
+    //     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CartState.Initial)
     fun removeItem(productId: Int) {
         cartRepository.removeFromCart(productId)
         load()

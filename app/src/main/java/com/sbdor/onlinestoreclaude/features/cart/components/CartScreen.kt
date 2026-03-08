@@ -47,8 +47,18 @@ fun CartScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    // LaunchedEffect = runs a side effect when the composable enters the tree.
-    // Unit as the key means it runs only once (like initState in Flutter).
+    // LaunchedEffect(Unit) = runs once when the screen enters composition (like initState in Flutter).
+    // Even though viewModel.load() is a normal fun (not suspend), LaunchedEffect is still used here
+    // to guarantee it runs only ONCE and not on every recomposition.
+    //
+    // ALTERNATIVE: call load() inside CartViewModel's init{} block instead.
+    // Then this LaunchedEffect would not be needed at all — the ViewModel loads automatically:
+    //
+    // init { load() }   // in CartViewModel
+    //
+    // Both approaches are valid. init{} is cleaner when the screen should always start loaded.
+    // LaunchedEffect is better when you want the screen to control WHEN loading starts
+    // (e.g. load only when the screen is visible, not on ViewModel creation).
     LaunchedEffect(Unit) {
         viewModel.load()
     }

@@ -29,6 +29,10 @@ class ProductsViewModel @Inject constructor(
     private val _state = MutableStateFlow<ProductsState>(ProductsState.Initial)
     val state: StateFlow<ProductsState> = _state.asStateFlow()
 
+    // init{} runs once when the ViewModel is first created — before any screen calls load().
+    // Equivalent to calling _load() directly inside a Flutter controller constructor.
+    // ALTERNATIVE: do NOT call load() here and instead use LaunchedEffect(Unit) in the screen.
+    // Both work, but init{} keeps the screen completely passive (it never triggers a load).
     init {
         load()
     }
@@ -36,6 +40,23 @@ class ProductsViewModel @Inject constructor(
     // viewModelScope = a coroutine scope tied to the ViewModel's lifecycle.
     // When the ViewModel is destroyed, all coroutines are automatically cancelled.
     // Equivalent to Dart's async/await inside a controller method.
+    //
+    // NOTICE: viewModelScope.launch is required here because searchProducts() is a suspend fun.
+    // Contrast with CartViewModel.load() which has no launch because its repository calls are synchronous.
+    //
+    // ALTERNATIVE: load() could be a suspend fun — but then the caller (screen or init block)
+    // would need to provide the coroutine context:
+    //
+    // suspend fun load(...) {        // caller must use launch{} or be inside a coroutine
+    //     _state.value = ProductsState.Loading
+    //     val products = productRepository.searchProducts(query, category)
+    //     _state.value = ProductsState.Completed(...)
+    // }
+    //
+    // init { viewModelScope.launch { load() } }   // init would need launch if load() is suspend
+    //
+    // The current approach (normal fun + launch inside) is preferred — the screen can call
+    // viewModel.load() from onClick or anywhere without needing a coroutine context.
     fun load(query: String = "", category: Category = Category.ALL) {
         viewModelScope.launch {
             _state.value = ProductsState.Loading

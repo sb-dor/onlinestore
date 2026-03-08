@@ -53,8 +53,20 @@ fun ProductsScreen(
     // Equivalent to ListenableBuilder or setState in Flutter.
     val state by viewModel.state.collectAsState()
 
-    // remember = stores state that survives recomposition (like a local variable in a StatefulWidget).
+    // remember = stores state that survives recomposition but is LOST on screen recreation
+    // (e.g. process death, screen removed from back stack).
     // mutableStateOf = triggers recomposition when value changes.
+    //
+    // ALTERNATIVE: use rememberSaveable instead of remember to survive process death and
+    // configuration changes (screen rotation). For simple types like String and enums,
+    // rememberSaveable works automatically:
+    //
+    // var searchQuery by rememberSaveable { mutableStateOf("") }
+    //
+    // ANOTHER ALTERNATIVE: move searchQuery and selectedCategory into the ViewModel's state
+    // (as fields on ProductsState.Completed). They already exist there as searchQuery and
+    // selectedCategory. The local remember here is a UI-only copy that stays in sync by
+    // passing both to viewModel.load() on every change.
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(Category.ALL) }
 
@@ -99,6 +111,12 @@ fun ProductsScreen(
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            // NOTICE: there is no LaunchedEffect here to trigger load().
+            // ProductsViewModel calls load() in its init{} block, so data loads automatically
+            // the moment Hilt creates the ViewModel — before this screen even renders.
+            // Contrast with CartScreen and FavoritesScreen which use LaunchedEffect(Unit)
+            // to trigger load() because their ViewModels do NOT have an init block.
 
             // when() in Kotlin = pattern matching on sealed class, like switch() in Dart.
             // The compiler forces you to handle every state — no missing cases.

@@ -38,8 +38,19 @@ fun FavoritesScreen(
 ) {
     val state by favoritesViewModel.state.collectAsState()
 
-    // LaunchedEffect = runs a side effect when the composable enters the tree.
-    // Unit as the key means it runs only once (like initState in Flutter).
+    // LaunchedEffect(Unit) here serves a DIFFERENT purpose than in CartScreen.
+    // In CartScreen, LaunchedEffect calls a normal fun — it just ensures it runs once.
+    // HERE, LaunchedEffect calls favoritesViewModel.load() which is a 'suspend fun'.
+    // LaunchedEffect provides the coroutine context required to call a suspend function.
+    // Without LaunchedEffect (or another coroutine wrapper), calling load() here would
+    // be a compile error: "suspend function can only be called from a coroutine".
+    //
+    // This is exactly the trade-off of marking ViewModel functions as suspend:
+    // the caller must always be inside a coroutine to invoke them.
+    //
+    // RECOMMENDED ALTERNATIVE: change load() in FavoritesViewModel to a normal fun
+    // with viewModelScope.launch inside (see comment in FavoritesViewModel.kt).
+    // Then this LaunchedEffect would just be triggering a normal fun, same as CartScreen.
     LaunchedEffect(Unit) {
         favoritesViewModel.load()
     }

@@ -10,13 +10,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 // @HiltViewModel = Hilt knows how to create this ViewModel and inject its dependencies.
 // Equivalent to the Flutter controller that receives an IExampleRepository via constructor.
 // ViewModel survives screen rotation (unlike plain classes).
 @HiltViewModel
 class ProductsViewModel @Inject constructor(
-    private val productRepository: IProductRepository,
+    // @Named("real") = tells Hilt which implementation of IProductRepository to inject.
+    // Two bindings exist in AppModule: @Named("real") and @Named("fake").
+    // To switch to fake data for testing, change "real" to "fake" here — nothing else changes.
+    @Named("real") private val productRepository: IProductRepository,
 ) : ViewModel() {
 
     // MutableStateFlow = the internal mutable state (private).

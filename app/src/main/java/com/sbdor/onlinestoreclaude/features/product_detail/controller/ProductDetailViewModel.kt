@@ -11,12 +11,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 // This ViewModel gets both IProductRepository and ICartRepository injected.
-// Hilt resolves both dependencies automatically from the AppModule bindings.
+// ICartRepository has only one binding in AppModule so no @Named needed there.
+// IProductRepository has two bindings (@Named("real") and @Named("fake")) so @Named is required.
 @HiltViewModel
 class ProductDetailViewModel @Inject constructor(
-    private val productRepository: IProductRepository,
+    @Named("real") private val productRepository: IProductRepository,
     private val cartRepository: ICartRepository,
 ) : ViewModel() {
 

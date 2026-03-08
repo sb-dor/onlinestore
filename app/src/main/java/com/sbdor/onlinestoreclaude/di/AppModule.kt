@@ -4,25 +4,30 @@ import com.sbdor.onlinestoreclaude.features.cart.data.CartRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.cart.data.ICartRepository
 import com.sbdor.onlinestoreclaude.features.order.data.IOrderRepository
 import com.sbdor.onlinestoreclaude.features.order.data.OrderRepositoryImpl
+import com.sbdor.onlinestoreclaude.features.products.data.FakeProductRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.products.data.IProductRepository
 import com.sbdor.onlinestoreclaude.features.products.data.ProductRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 import javax.inject.Singleton
 
 // @Module tells Hilt this class provides dependencies.
-// @InstallIn(SingletonComponent::class) = these live for the entire app lifetime (like Singleton in Flutter's DI).
+// @InstallIn(SingletonComponent::class) = these live for the entire app lifetime.
 // @Binds = "when someone asks for IProductRepository, give them ProductRepositoryImpl".
 // This is the interface-based DI pattern from the architecture guide.
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppModule {
 
-    @Binds
-    @Singleton
-    abstract fun bindProductRepository(impl: ProductRepositoryImpl): IProductRepository
+    // ─────────────────────────────────────────────────────────────────────────
+    // SINGLE IMPLEMENTATION (default, most common case)
+    //
+    // When there is only one implementation of an interface, no @Named is needed.
+    // Hilt knows exactly which class to inject wherever ICartRepository is requested.
+    // ─────────────────────────────────────────────────────────────────────────
 
     @Binds
     @Singleton
@@ -31,4 +36,31 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindOrderRepository(impl: OrderRepositoryImpl): IOrderRepository
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // MULTIPLE IMPLEMENTATIONS (showcase — @Named qualifier)
+    //
+    // When two or more classes implement the same interface, Hilt cannot decide
+    // which one to inject on its own — it will throw a compile-time error:
+    //   "Cannot provide IProductRepository — it has multiple bindings."
+    //
+    // Fix: tag each binding with @Named("some_label") and use the same tag
+    // on the constructor parameter in the ViewModel to pick the right one.
+    //
+    // Currently the app uses @Named("real") in ProductsViewModel and
+    // ProductDetailViewModel. To switch to fake data, change @Named("real")
+    // to @Named("fake") in those ViewModels — no other code changes needed.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // Real implementation — talks to an actual API / database
+    @Binds
+    @Singleton
+    @Named("real")
+    abstract fun bindProductRepository(impl: ProductRepositoryImpl): IProductRepository
+
+    // Fake implementation — returns hardcoded data, useful for UI testing / early dev
+    @Binds
+    @Singleton
+    @Named("fake")
+    abstract fun bindFakeProductRepository(impl: FakeProductRepositoryImpl): IProductRepository
 }

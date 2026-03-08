@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +44,7 @@ import com.sbdor.onlinestoreclaude.features.products.components.components.Searc
 fun ProductsScreen(
     onProductClick: (Int) -> Unit,
     onCartClick: () -> Unit,
+    onFavoritesClick: () -> Unit,
     // hiltViewModel() = Hilt creates and provides the ViewModel automatically.
     // Equivalent to getting a controller from DependenciesScope.of(context) in Flutter.
     viewModel: ProductsViewModel = hiltViewModel(),
@@ -61,6 +63,9 @@ fun ProductsScreen(
             TopAppBar(
                 title = { Text("Online Store") },
                 actions = {
+                    IconButton(onClick = onFavoritesClick) {
+                        Icon(Icons.Default.Favorite, contentDescription = "Favorites")
+                    }
                     IconButton(onClick = onCartClick) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
                     }

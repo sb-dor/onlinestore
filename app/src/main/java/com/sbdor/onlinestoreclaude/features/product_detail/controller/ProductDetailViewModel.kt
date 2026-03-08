@@ -3,6 +3,8 @@ package com.sbdor.onlinestoreclaude.features.product_detail.controller
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbdor.onlinestoreclaude.features.cart.data.ICartRepository
+import com.sbdor.onlinestoreclaude.features.favorites.data.IFavoritesRepository
+import com.sbdor.onlinestoreclaude.features.favorites.models.Favorite
 import com.sbdor.onlinestoreclaude.features.products.data.IProductRepository
 import com.sbdor.onlinestoreclaude.features.products.models.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +22,7 @@ import javax.inject.Named
 class ProductDetailViewModel @Inject constructor(
     @Named("real") private val productRepository: IProductRepository,
     private val cartRepository: ICartRepository,
+    private val favoritesRepository: IFavoritesRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<ProductDetailState>(ProductDetailState.Initial)
@@ -47,6 +50,16 @@ class ProductDetailViewModel @Inject constructor(
         val current = _state.value
         if (current is ProductDetailState.Completed) {
             _state.value = current.copy(addedToCart = true)
+        }
+    }
+
+    fun addToFavorites(product: Product) {
+        viewModelScope.launch {
+            favoritesRepository.addToFavorite(Favorite(product = product))
+            val current = _state.value;
+            if (current is ProductDetailState.Completed) {
+                _state.value = current.copy(addedToFavorites = true)
+            }
         }
     }
 }

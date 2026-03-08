@@ -2,6 +2,8 @@ package com.sbdor.onlinestoreclaude.di
 
 import com.sbdor.onlinestoreclaude.features.cart.data.CartRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.cart.data.ICartRepository
+import com.sbdor.onlinestoreclaude.features.favorites.data.FavoritesRepositoryImpl
+import com.sbdor.onlinestoreclaude.features.favorites.data.IFavoritesRepository
 import com.sbdor.onlinestoreclaude.features.order.data.IOrderRepository
 import com.sbdor.onlinestoreclaude.features.order.data.OrderRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.products.data.FakeProductRepositoryImpl
@@ -36,6 +38,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindOrderRepository(impl: OrderRepositoryImpl): IOrderRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFavoritesRepository(impl: FavoritesRepositoryImpl): IFavoritesRepository
 
     // ─────────────────────────────────────────────────────────────────────────
     // MULTIPLE IMPLEMENTATIONS (showcase — @Named qualifier)

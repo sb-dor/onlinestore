@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.sbdor.onlinestoreclaude.features.cart.components.CartScreen
+import com.sbdor.onlinestoreclaude.features.favorites.components.FavoritesScreen
 import com.sbdor.onlinestoreclaude.features.order.components.OrderScreen
 import com.sbdor.onlinestoreclaude.features.product_detail.components.ProductDetailScreen
 import com.sbdor.onlinestoreclaude.features.products.components.ProductsScreen
@@ -26,6 +27,9 @@ fun AppNavigation() {
             ProductsScreen(
                 onProductClick = { productId ->
                     navController.navigate(AppRoute.ProductDetail.createRoute(productId))
+                },
+                onFavoritesClick = {
+                    navController.navigate(AppRoute.Favorites.route)
                 },
                 onCartClick = {
                     navController.navigate(AppRoute.Cart.route)
@@ -51,6 +55,13 @@ fun AppNavigation() {
                 onBackClick = { navController.popBackStack() },
                 onCheckoutClick = { navController.navigate(AppRoute.Order.route) },
             )
+        }
+
+
+        composable(AppRoute.Favorites.route) {
+            FavoritesScreen(onBackClick = {
+                navController.popBackStack()
+            })
         }
 
         composable(AppRoute.Order.route) {

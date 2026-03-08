@@ -167,6 +167,16 @@ fun ProductDetailScreen(
                                 text = if (currentState.addedToCart) "Added to Cart ✓" else "Add to Cart",
                             )
                         }
+
+                        Button(
+                            onClick = { viewModel.addToFavorites(product) },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !currentState.addedToFavorites,
+                        ) {
+                            Text(
+                                text = if (currentState.addedToFavorites) "Added to Favorites ✓" else "Add to Favorites",
+                            )
+                        }
                     }
                 }
             }

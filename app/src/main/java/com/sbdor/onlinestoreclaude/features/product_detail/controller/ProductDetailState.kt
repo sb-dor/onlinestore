@@ -9,5 +9,6 @@ sealed class ProductDetailState {
     data class Completed(
         val product: Product,
         val addedToCart: Boolean = false,
+        var addedToFavorites: Boolean = false
     ) : ProductDetailState()
 }

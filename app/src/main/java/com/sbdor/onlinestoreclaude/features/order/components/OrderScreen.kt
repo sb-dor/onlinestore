@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderState
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,9 +47,44 @@ fun OrderScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
+    // CURRENT BEHAVIOR:
+    // placeOrder() is a normal fun — it starts a coroutine internally (viewModelScope.launch)
+    // and returns immediately without waiting. So println runs right after placeOrder() is called,
+    // without waiting for the order to finish.
+    //
+    // Execution order:
+    // 1. placeOrder() is called — internally fires viewModelScope.launch and returns immediately
+    // 2. println("test message") runs right away
+    // 3. the order completes in the background, state updates, UI recomposes
     LaunchedEffect(Unit) {
         viewModel.placeOrder()
+        println("test message")  // runs immediately — does NOT wait for order to complete
     }
+
+    // ---------------------------------------------------------------------------
+    // ALTERNATIVE 1 — if placeOrder() were a suspend fun (no launch inside ViewModel):
+    // ---------------------------------------------------------------------------
+    // LaunchedEffect runs sequentially like Dart's await — each line waits for the previous.
+    // So println would NOT run until placeOrder() fully completes.
+    //
+    // LaunchedEffect(Unit) {
+    //     viewModel.placeOrder()   // suspend fun — LaunchedEffect awaits it automatically
+    //     println("test message")  // runs ONLY after order is fully placed
+    // }
+    //
+    // ---------------------------------------------------------------------------
+    // ALTERNATIVE 2 — if placeOrder() were a suspend fun but we use launch inside LaunchedEffect:
+    // ---------------------------------------------------------------------------
+    // launch{} fires and forgets — it does NOT block the outer coroutine.
+    // So println runs first, and placeOrder runs in the background simultaneously.
+    //
+    // LaunchedEffect(Unit) {
+    //     launch {
+    //         viewModel.placeOrder()   // suspend fun — runs in background, not awaited
+    //     }
+    //     println("test message")      // runs IMMEDIATELY — does not wait for placeOrder
+    // }
+    // ---------------------------------------------------------------------------
 
     Scaffold(
         topBar = {

@@ -47,7 +47,7 @@ abstract class AppModule {
     // Fix: tag each binding with @Named("some_label") and use the same tag
     // on the constructor parameter in the ViewModel to pick the right one.
     //
-    // Currently the app uses @Named("real") in ProductsViewModel and
+    // Currently, the app uses @Named("real") in ProductsViewModel and
     // ProductDetailViewModel. To switch to fake data, change @Named("real")
     // to @Named("fake") in those ViewModels — no other code changes needed.
     // ─────────────────────────────────────────────────────────────────────────

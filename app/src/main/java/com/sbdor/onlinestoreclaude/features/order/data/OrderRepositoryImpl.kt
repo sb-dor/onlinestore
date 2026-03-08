@@ -12,7 +12,7 @@ class OrderRepositoryImpl @Inject constructor() : IOrderRepository {
 
     override suspend fun placeOrder(items: List<CartItem>): Order {
         // Simulate a network request delay
-        delay(1500)
+        delay(4000)
         val total = items.sumOf { it.totalPrice }
         return Order(
             id = orderIdCounter++,

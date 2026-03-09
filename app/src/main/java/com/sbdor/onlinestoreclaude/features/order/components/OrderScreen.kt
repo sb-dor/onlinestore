@@ -34,16 +34,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderState
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderViewModel
-import kotlinx.coroutines.launch
+import com.sbdor.onlinestoreclaude.features.order.controller.OrderViewModelFactory
+import com.sbdor.onlinestoreclaude.features.order.data.OrderRepositoryImpl
 
+// ---------------------------------------------------------------------------
+// How @AssistedInject changes the ViewModel creation in the Screen
+// ---------------------------------------------------------------------------
+// BEFORE (standard @HiltViewModel):
+//   viewModel: OrderViewModel = hiltViewModel()
+//   Hilt creates the ViewModel completely on its own using AppModule bindings.
+//   The screen has no control over which IOrderRepository is used.
+//
+// AFTER (@AssistedInject):
+//   viewModel: OrderViewModel = hiltViewModel<OrderViewModel, OrderViewModelFactory> { factory ->
+//       factory.create(OrderRepositoryImpl())  // <- screen decides which impl to pass
+//   }
+//   hiltViewModel() is overloaded to accept a factory lambda when using @AssistedInject.
+//   Hilt provides the OrderViewModelFactory, then calls our lambda with it.
+//   We call factory.create(...) passing whichever IOrderRepository we want.
+//
+// To switch to local/offline behavior on THIS screen, change one line:
+//   factory.create(OrderRepositoryImpl())        // remote — 4 second delay
+//   factory.create(OrderLocalRepositoryImpl())   // local  — instant
+//
+// On a DIFFERENT screen you could pass OrderLocalRepositoryImpl() — same ViewModel,
+// different behavior. This is the entire point of @AssistedInject.
+// ---------------------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderScreen(
     onBackClick: () -> Unit,
     onContinueShoppingClick: () -> Unit,
-    viewModel: OrderViewModel = hiltViewModel(),
+    viewModel: OrderViewModel = hiltViewModel<OrderViewModel, OrderViewModelFactory> { factory ->
+        factory.create(OrderRepositoryImpl())  // passes the remote implementation at runtime
+    }
 ) {
     val state by viewModel.state.collectAsState()
 

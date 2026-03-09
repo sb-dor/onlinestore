@@ -5,6 +5,7 @@ import com.sbdor.onlinestoreclaude.features.cart.data.ICartRepository
 import com.sbdor.onlinestoreclaude.features.favorites.data.FavoritesRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.favorites.data.IFavoritesRepository
 import com.sbdor.onlinestoreclaude.features.order.data.IOrderRepository
+import com.sbdor.onlinestoreclaude.features.order.data.OrderLocalRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.order.data.OrderRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.products.data.FakeProductRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.products.data.IProductRepository
@@ -35,9 +36,23 @@ abstract class AppModule {
     @Singleton
     abstract fun bindCartRepository(impl: CartRepositoryImpl): ICartRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindOrderRepository(impl: OrderRepositoryImpl): IOrderRepository
+//    ---------------------------------------------------------------------------
+//    WHY these bindings are commented out:
+//    ---------------------------------------------------------------------------
+//    IOrderRepository is NOT bound here because OrderViewModel uses @AssistedInject.
+//    With @AssistedInject, the caller (OrderScreen) passes the IOrderRepository
+//    implementation directly via factory.create(...) at runtime — Hilt does not
+//    need to know about it in AppModule at all.
+//
+//    If you were using the @Named approach instead (Option 1 — SavedStateHandle),
+//    you would uncomment these and inject via @Named on the ViewModel constructor:
+//
+//    @Binds @Singleton @Named("Remote")
+//    abstract fun bindOrderRemoteRepository(impl: OrderRepositoryImpl): IOrderRepository
+//
+//    @Binds @Singleton @Named("Local")
+//    abstract fun bindOrderLocalRepository(impl: OrderLocalRepositoryImpl): IOrderRepository
+//    ---------------------------------------------------------------------------
 
     @Binds
     @Singleton

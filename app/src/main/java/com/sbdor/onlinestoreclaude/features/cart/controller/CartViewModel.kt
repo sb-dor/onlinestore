@@ -1,17 +1,22 @@
 package com.sbdor.onlinestoreclaude.features.cart.controller
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.sbdor.onlinestoreclaude.features.cart.data.ICartRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
 
-@HiltViewModel
-class CartViewModel @Inject constructor(
+class CartViewModel(
     private val cartRepository: ICartRepository,
 ) : ViewModel() {
+
+    companion object {
+        fun factory(cartRepository: ICartRepository) = viewModelFactory {
+            initializer { CartViewModel(cartRepository) }
+        }
+    }
 
     private val _state = MutableStateFlow<CartState>(CartState.Initial)
     val state: StateFlow<CartState> = _state.asStateFlow()

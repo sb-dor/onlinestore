@@ -2,11 +2,8 @@ package com.sbdor.onlinestoreclaude.features.products.data
 
 import com.sbdor.onlinestoreclaude.features.products.models.Category
 import com.sbdor.onlinestoreclaude.features.products.models.Product
-import javax.inject.Inject
 
-// @Inject constructor = tells Hilt how to create this class automatically.
-// No need to manually pass dependencies — Hilt will find and inject them.
-class ProductRepositoryImpl @Inject constructor() : IProductRepository {
+class ProductRepositoryImpl : IProductRepository {
 
     // Fake in-memory data. In a real app this would come from a Retrofit API call or Room database.
     private val fakeProducts = listOf(

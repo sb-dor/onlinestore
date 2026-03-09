@@ -33,7 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sbdor.onlinestoreclaude.core.LocalAppContainer
 import com.sbdor.onlinestoreclaude.features.product_detail.controller.ProductDetailState
 import com.sbdor.onlinestoreclaude.features.product_detail.controller.ProductDetailViewModel
 
@@ -43,8 +44,16 @@ fun ProductDetailScreen(
     productId: Int,
     onBackClick: () -> Unit,
     onCartClick: () -> Unit,
-    viewModel: ProductDetailViewModel = hiltViewModel(),
 ) {
+    val container = LocalAppContainer.current
+    val viewModel: ProductDetailViewModel = viewModel(
+        factory = ProductDetailViewModel.factory(
+            productId = productId,
+            productRepository = container.productRepository,
+            cartRepository = container.cartRepository,
+            favoritesRepository = container.favoritesRepository,
+        )
+    )
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 

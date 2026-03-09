@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.sbdor.onlinestoreclaude.core.SharedPreferencesManager
 import com.sbdor.onlinestoreclaude.features.order.models.Order
-import javax.inject.Inject
 
 interface IOrderHistoryRepository {
     fun getOrderHistory(): List<Order>
@@ -12,7 +11,7 @@ interface IOrderHistoryRepository {
 }
 
 
-class OrderHistoryImpl @Inject constructor(
+class OrderHistoryImpl(
     private val sharedPreferencesManager: SharedPreferencesManager,
 ) : IOrderHistoryRepository {
 

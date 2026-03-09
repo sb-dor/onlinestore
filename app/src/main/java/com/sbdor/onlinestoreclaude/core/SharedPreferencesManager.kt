@@ -2,20 +2,8 @@ package com.sbdor.onlinestoreclaude.core
 
 import android.content.Context
 import android.content.SharedPreferences
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
-// @Singleton = one instance for the entire app lifetime.
-// @ApplicationContext = Hilt provides the app-level Context automatically.
-// This class is injected wherever needed — no manual instantiation required.
-//
-// Dart equivalent: a singleton service class registered in the DI root,
-// wrapping shared_preferences package calls.
-@Singleton
-class SharedPreferencesManager @Inject constructor(
-    @ApplicationContext private val context: Context,
-) {
+class SharedPreferencesManager(private val context: Context) {
     companion object {
         private const val PREFS_NAME = "app_prefs"
     }

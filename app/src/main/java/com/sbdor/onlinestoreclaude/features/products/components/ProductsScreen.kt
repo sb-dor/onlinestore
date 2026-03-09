@@ -30,7 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sbdor.onlinestoreclaude.core.LocalAppContainer
 import com.sbdor.onlinestoreclaude.features.products.controller.ProductsState
 import com.sbdor.onlinestoreclaude.features.products.controller.ProductsViewModel
 import com.sbdor.onlinestoreclaude.features.products.models.Category
@@ -43,10 +44,9 @@ import com.sbdor.onlinestoreclaude.features.products.components.components.Searc
 fun ProductsScreen(
     onProductClick: (Int) -> Unit,
     onFavoritesClick: () -> Unit,
-    // hiltViewModel() = Hilt creates and provides the ViewModel automatically.
-    // Equivalent to getting a controller from DependenciesScope.of(context) in Flutter.
-    viewModel: ProductsViewModel = hiltViewModel(),
 ) {
+    val container = LocalAppContainer.current
+    val viewModel: ProductsViewModel = viewModel(factory = ProductsViewModel.factory(container.productRepository))
     // collectAsState() = subscribes to the StateFlow and recomposes when it changes.
     // Equivalent to ListenableBuilder or setState in Flutter.
     val state by viewModel.state.collectAsState()

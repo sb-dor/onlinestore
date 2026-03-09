@@ -33,7 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sbdor.onlinestoreclaude.core.LocalAppContainer
 import com.sbdor.onlinestoreclaude.features.cart.controller.CartState
 import com.sbdor.onlinestoreclaude.features.cart.controller.CartViewModel
 import com.sbdor.onlinestoreclaude.features.cart.components.components.CartItemCard
@@ -43,8 +44,9 @@ import com.sbdor.onlinestoreclaude.features.cart.components.components.CartItemC
 fun CartScreen(
     onBackClick: () -> Unit,
     onCheckoutClick: () -> Unit,
-    viewModel: CartViewModel = hiltViewModel(),
 ) {
+    val container = LocalAppContainer.current
+    val viewModel: CartViewModel = viewModel(factory = CartViewModel.factory(container.cartRepository))
     val state by viewModel.state.collectAsState()
 
     // LaunchedEffect(Unit) = runs once when the screen enters composition (like initState in Flutter).

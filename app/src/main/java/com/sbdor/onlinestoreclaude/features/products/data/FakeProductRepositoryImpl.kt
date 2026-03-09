@@ -2,40 +2,20 @@ package com.sbdor.onlinestoreclaude.features.products.data
 
 import com.sbdor.onlinestoreclaude.features.products.models.Category
 import com.sbdor.onlinestoreclaude.features.products.models.Product
-import javax.inject.Inject
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHOWCASE: Multiple implementations of the same interface
 // ─────────────────────────────────────────────────────────────────────────────
 //
-// This class is NOT wired into AppModule and NOT used anywhere in the app.
-// It exists purely to show what a second implementation looks like and how
-// you would register it alongside ProductRepositoryImpl using @Named.
+// This class is NOT wired into AppContainer and NOT used anywhere in the app.
+// It exists purely to show what a second implementation looks like.
 //
-// When you have two implementations of the same interface, Hilt needs a way
-// to tell them apart. You use @Named (or a custom @Qualifier annotation):
-//
-//   In AppModule.kt you would add:
-//
-//     @Binds @Singleton @Named("real")
-//     abstract fun bindRealProductRepository(impl: ProductRepositoryImpl): IProductRepository
-//
-//     @Binds @Singleton @Named("fake")
-//     abstract fun bindFakeProductRepository(impl: FakeProductRepositoryImpl): IProductRepository
-//
-//   Then in the ViewModel you pick which one you want:
-//
-//     @HiltViewModel
-//     class ProductsViewModel @Inject constructor(
-//         @Named("fake") private val productRepository: IProductRepository,
-//     ) : ViewModel()
-//
-//   Without @Named, Hilt would throw a compile-time error:
-//   "Cannot provide IProductRepository — it has multiple bindings."
+// To switch to fake data, change AppContainer's productRepository line to:
+//   val productRepository: IProductRepository = FakeProductRepositoryImpl()
 //
 // ─────────────────────────────────────────────────────────────────────────────
 
-class FakeProductRepositoryImpl @Inject constructor() : IProductRepository {
+class FakeProductRepositoryImpl : IProductRepository {
 
     // Returns a minimal hardcoded list — useful during early development or UI testing
     // when you do not want to hit a real API.

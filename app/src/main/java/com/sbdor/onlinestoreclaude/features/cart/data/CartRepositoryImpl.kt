@@ -2,13 +2,8 @@ package com.sbdor.onlinestoreclaude.features.cart.data
 
 import com.sbdor.onlinestoreclaude.features.cart.models.CartItem
 import com.sbdor.onlinestoreclaude.features.products.models.Product
-import javax.inject.Inject
-import javax.inject.Singleton
 
-// @Singleton = only one instance is ever created (bound in AppModule with @Singleton too).
-// This ensures the cart state is shared across the entire app — same cart everywhere.
-@Singleton
-class CartRepositoryImpl @Inject constructor() : ICartRepository {
+class CartRepositoryImpl : ICartRepository {
 
     private val _cartItems = mutableListOf<CartItem>()
 

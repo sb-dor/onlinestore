@@ -1,17 +1,22 @@
 package com.sbdor.onlinestoreclaude.features.favorites.controller
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.sbdor.onlinestoreclaude.features.favorites.data.IFavoritesRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
 
-@HiltViewModel
-class FavoritesViewModel @Inject constructor(
+class FavoritesViewModel(
     val favoritesRepositoryImpl: IFavoritesRepository
 ) : ViewModel() {
+
+    companion object {
+        fun factory(favoritesRepository: IFavoritesRepository) = viewModelFactory {
+            initializer { FavoritesViewModel(favoritesRepository) }
+        }
+    }
 
     private val _state = MutableStateFlow<FavoritesState>(FavoritesState.Initial)
     val state: StateFlow<FavoritesState> = _state.asStateFlow()

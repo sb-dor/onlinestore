@@ -1,6 +1,5 @@
 package com.sbdor.onlinestoreclaude.features.order_history.components
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,46 +21,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.sbdor.onlinestoreclaude.core.SharedPreferencesManager
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sbdor.onlinestoreclaude.core.LocalAppContainer
 import com.sbdor.onlinestoreclaude.features.order_history.components.components.OrderHistoryCard
-import com.sbdor.onlinestoreclaude.features.order_history.controller.OrderHistoryControllerFactory
 import com.sbdor.onlinestoreclaude.features.order_history.controller.OrderHistoryState
 import com.sbdor.onlinestoreclaude.features.order_history.controller.OrderHistoryViewModel
-import com.sbdor.onlinestoreclaude.features.order_history.data.OrderHistoryImpl
-import dagger.hilt.android.EntryPointAccessors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderHistoryScreen(
     onBackClick: () -> Unit,
-
 ) {
-    // ---------------------------------------------------------------------------
-    // hiltViewModel<VM, Factory> { factory -> factory.create(...) } is the
-    // Compose-side usage of @AssistedInject. Hilt provides the factory instance,
-    // we call factory.create() passing our runtime-resolved repository.
-    //
-    // This is equivalent to:
-    //   ChangeNotifierProvider(
-    //     create: (_) => OrderHistoryController(repository: repository),
-    //     child: ...,
-    //   )
-    // in Flutter.
-    val context = LocalContext.current
-    val sharedPreferencesManager = remember {
-        SharedPreferencesManager(context)
-    }
-
-    val viewModel: OrderHistoryViewModel = hiltViewModel<OrderHistoryViewModel, OrderHistoryControllerFactory> { factory ->
-        factory.create(OrderHistoryImpl(sharedPreferencesManager))
-    }
-
+    val container = LocalAppContainer.current
+    val viewModel: OrderHistoryViewModel = viewModel(
+        factory = OrderHistoryViewModel.factory(container.orderHistoryRepository)
+    )
 
     val state by viewModel.state.collectAsState()
 

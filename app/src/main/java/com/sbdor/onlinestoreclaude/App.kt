@@ -1,9 +1,13 @@
 package com.sbdor.onlinestoreclaude
 
 import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
+import com.sbdor.onlinestoreclaude.core.AppContainer
 
-// @HiltAndroidApp triggers Hilt's code generation for DI.
-// Every Android app using Hilt must have this on the Application class.
-@HiltAndroidApp
-class App : Application()
+class App : Application() {
+    lateinit var container: AppContainer
+
+    override fun onCreate() {
+        super.onCreate()
+        container = AppContainer(this)
+    }
+}

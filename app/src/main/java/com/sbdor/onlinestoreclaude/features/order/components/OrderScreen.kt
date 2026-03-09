@@ -29,62 +29,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.sbdor.onlinestoreclaude.core.SharedPreferencesManager
-import com.sbdor.onlinestoreclaude.di.AppModule
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sbdor.onlinestoreclaude.core.LocalAppContainer
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderState
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderViewModel
-import com.sbdor.onlinestoreclaude.features.order.controller.OrderViewModelFactory
-import com.sbdor.onlinestoreclaude.features.order.data.OrderRepositoryImpl
-import dagger.hilt.android.EntryPointAccessors
 
-// ---------------------------------------------------------------------------
-// How @AssistedInject changes the ViewModel creation in the Screen
-// ---------------------------------------------------------------------------
-// BEFORE (standard @HiltViewModel):
-//   viewModel: OrderViewModel = hiltViewModel()
-//   Hilt creates the ViewModel completely on its own using AppModule bindings.
-//   The screen has no control over which IOrderRepository is used.
-//
-// AFTER (@AssistedInject):
-//   viewModel: OrderViewModel = hiltViewModel<OrderViewModel, OrderViewModelFactory> { factory ->
-//       factory.create(OrderRepositoryImpl())  // <- screen decides which impl to pass
-//   }
-//   hiltViewModel() is overloaded to accept a factory lambda when using @AssistedInject.
-//   Hilt provides the OrderViewModelFactory, then calls our lambda with it.
-//   We call factory.create(...) passing whichever IOrderRepository we want.
-//
-// To switch to local/offline behavior on THIS screen, change one line:
-//   factory.create(OrderRepositoryImpl())        // remote — 4 second delay
-//   factory.create(OrderLocalRepositoryImpl())   // local  — instant
-//
-// On a DIFFERENT screen you could pass OrderLocalRepositoryImpl() — same ViewModel,
-// different behavior. This is the entire point of @AssistedInject.
-// ---------------------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderScreen(
     onBackClick: () -> Unit,
     onContinueShoppingClick: () -> Unit,
 ) {
-    // Pull SharedPreferencesManager from Hilt's graph via EntryPoint.
-    // This is needed because OrderRepositoryImpl requires it in its constructor,
-    // but we are instantiating it manually here (not via Hilt's @Binds).
-    // remember{} ensures we only resolve it once, not on every recomposition.
-    val context = LocalContext.current
-    val sharedPreferencesManager = remember {
-        SharedPreferencesManager(context)
-    }
-
-    val viewModel = hiltViewModel<OrderViewModel, OrderViewModelFactory> { factory ->
-        factory.create(OrderRepositoryImpl(sharedPreferencesManager))
-    }
+    val container = LocalAppContainer.current
+    val viewModel: OrderViewModel = viewModel(
+        factory = OrderViewModel.factory(
+            orderRepository = container.orderRepository,
+            cartRepository = container.cartRepository,
+        )
+    )
 
     val state by viewModel.state.collectAsState()
 

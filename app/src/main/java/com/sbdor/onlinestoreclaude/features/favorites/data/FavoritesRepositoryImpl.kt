@@ -2,11 +2,8 @@ package com.sbdor.onlinestoreclaude.features.favorites.data
 
 import com.sbdor.onlinestoreclaude.features.favorites.models.Favorite
 import kotlinx.coroutines.delay
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FavoritesRepositoryImpl @Inject constructor() : IFavoritesRepository {
+class FavoritesRepositoryImpl : IFavoritesRepository {
     private val _cartItems = mutableListOf<Favorite>()
 
     override suspend fun favorites(): List<Favorite> {

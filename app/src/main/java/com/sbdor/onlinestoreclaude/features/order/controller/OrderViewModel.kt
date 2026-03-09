@@ -2,64 +2,28 @@ package com.sbdor.onlinestoreclaude.features.order.controller
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.sbdor.onlinestoreclaude.features.cart.data.ICartRepository
 import com.sbdor.onlinestoreclaude.features.order.data.IOrderRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-// ---------------------------------------------------------------------------
-// @AssistedInject PATTERN — dynamic dependency injection at runtime
-// ---------------------------------------------------------------------------
-// Previously, OrderViewModel used @HiltViewModel + @Inject constructor, which means
-// Hilt fully controlled which IOrderRepository implementation to inject — decided
-// at compile time in AppModule via @Binds.
-//
-// PROBLEM with the old approach: you could only ever use ONE implementation of
-// IOrderRepository across the entire app (whichever AppModule bound).
-// To use a different impl on a different screen, you'd need @Named + two separate
-// ViewModels or SavedStateHandle tricks.
-//
-// SOLUTION — @AssistedInject:
-// Hilt still injects everything it knows about (ICartRepository, etc.),
-// but the @Assisted parameter (IOrderRepository) is passed BY THE CALLER at runtime.
-// This means each screen can pass a DIFFERENT implementation of IOrderRepository
-// to the same ViewModel class — no AppModule changes, no @Named qualifiers needed.
-//
-// COMPARE:
-// Old:  Hilt creates OrderViewModel and decides the repository — fixed at compile time.
-// New:  Caller creates OrderViewModel via factory and passes the repository — chosen at runtime.
-// ---------------------------------------------------------------------------
-
-// @AssistedFactory = Hilt generates the implementation of this interface automatically.
-// It acts as the bridge between Hilt's DI graph and the assisted (runtime) parameter.
-// The screen calls factory.create(someRepository) to get an OrderViewModel instance
-// with that specific repository injected.
-@AssistedFactory
-interface OrderViewModelFactory {
-    fun create(orderRepository: IOrderRepository): OrderViewModel
-}
-
-// @HiltViewModel(assistedFactory = ...) = tells Hilt this ViewModel uses assisted injection.
-// @AssistedInject = replaces @Inject. Hilt handles all normal params, caller provides @Assisted params.
-// @Assisted = marks which constructor param is provided by the caller (not by Hilt's DI graph).
-//
-// cartRepository has NO @Assisted — Hilt still injects it automatically from AppModule.
-// orderRepository HAS @Assisted — the caller (OrderScreen) provides it at creation time.
-@HiltViewModel(assistedFactory = OrderViewModelFactory::class)
-class OrderViewModel @AssistedInject constructor(
-    /// manually injecting this orderRepository
-    @Assisted private val orderRepository: IOrderRepository,
-
-    /// will be automatically injected via hilt
+class OrderViewModel(
+    private val orderRepository: IOrderRepository,
     private val cartRepository: ICartRepository,
 ) : ViewModel() {
+
+    companion object {
+        fun factory(
+            orderRepository: IOrderRepository,
+            cartRepository: ICartRepository,
+        ) = viewModelFactory {
+            initializer { OrderViewModel(orderRepository, cartRepository) }
+        }
+    }
 
     private val _state = MutableStateFlow<OrderState>(OrderState.Initial)
     val state: StateFlow<OrderState> = _state.asStateFlow()

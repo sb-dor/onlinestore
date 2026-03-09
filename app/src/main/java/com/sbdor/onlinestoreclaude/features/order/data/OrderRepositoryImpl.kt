@@ -7,7 +7,6 @@ import com.sbdor.onlinestoreclaude.features.cart.models.CartItem
 import com.sbdor.onlinestoreclaude.features.order.models.Order
 import com.sbdor.onlinestoreclaude.features.order.models.OrderStatus
 import kotlinx.coroutines.delay
-import javax.inject.Inject
 
 // ---------------------------------------------------------------------------
 // FIRST IMPLEMENTATION — simulates a remote API / network call
@@ -16,16 +15,13 @@ import javax.inject.Inject
 // delay(4000) simulates network latency — in a real app this would be a Retrofit/Ktor call.
 // orderIdCounter increments on each order, simulating a server-generated ID.
 //
-// SharedPreferencesManager is injected to persist order history across app restarts.
+// SharedPreferencesManager is passed in to persist order history across app restarts.
 // Gson converts Order (complex object) to a JSON String — the only way to store
 // objects in SharedPreferences, which only supports primitive types and Strings.
 //
 // Used when the screen wants to simulate a real checkout with network delay.
-// Passed to OrderViewModel via @AssistedInject: factory.create(OrderRepositoryImpl())
 // ---------------------------------------------------------------------------
-class OrderRepositoryImpl @Inject constructor(
-    // Hilt injects SharedPreferencesManager automatically — it is @Singleton so
-    // the same instance is shared across the whole app.
+class OrderRepositoryImpl(
     private val sharedPreferencesManager: SharedPreferencesManager,
 ) : IOrderRepository {
 
@@ -83,14 +79,8 @@ class OrderRepositoryImpl @Inject constructor(
 // Also persists order history via SharedPreferencesManager, same as the remote impl.
 //
 // Used when the screen wants instant order confirmation without network.
-// Passed to OrderViewModel via @AssistedInject: factory.create(OrderLocalRepositoryImpl())
-//
-// NOTICE: both classes have @Inject constructor — this lets Hilt construct them
-// when needed (e.g. when the screen calls factory.create(OrderLocalRepositoryImpl())).
-// However, neither is bound in AppModule via @Binds because @AssistedInject
-// does not require AppModule bindings for the @Assisted parameter.
 // ---------------------------------------------------------------------------
-class OrderLocalRepositoryImpl @Inject constructor(
+class OrderLocalRepositoryImpl(
     private val sharedPreferencesManager: SharedPreferencesManager,
 ) : IOrderRepository {
 

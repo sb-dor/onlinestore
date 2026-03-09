@@ -25,7 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sbdor.onlinestoreclaude.core.LocalAppContainer
 import com.sbdor.onlinestoreclaude.features.favorites.controller.FavoritesState
 import com.sbdor.onlinestoreclaude.features.favorites.controller.FavoritesViewModel
 import com.sbdor.onlinestoreclaude.features.products.components.components.ProductCard
@@ -34,8 +35,9 @@ import com.sbdor.onlinestoreclaude.features.products.components.components.Produ
 @Composable
 fun FavoritesScreen(
     onBackClick: () -> Unit,
-    favoritesViewModel: FavoritesViewModel = hiltViewModel()
 ) {
+    val container = LocalAppContainer.current
+    val favoritesViewModel: FavoritesViewModel = viewModel(factory = FavoritesViewModel.factory(container.favoritesRepository))
     val state by favoritesViewModel.state.collectAsState()
 
     // LaunchedEffect(Unit) here serves a DIFFERENT purpose than in CartScreen.

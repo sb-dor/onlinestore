@@ -8,6 +8,7 @@ sealed class AppRoute(val route: String) {
     object Order : AppRoute("order")
 
     object Favorites : AppRoute(route = "favorites")
+    object OrderHistory : AppRoute(route = "order_history")
 
     // ProductDetail uses a path parameter: product_detail/{productId}
     object ProductDetail : AppRoute("product_detail/{productId}") {

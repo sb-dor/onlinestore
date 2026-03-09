@@ -74,34 +74,6 @@ fun CartScreen(
                 },
             )
         },
-        bottomBar = {
-            if (state is CartState.Completed) {
-                val completedState = state as CartState.Completed
-                Surface(tonalElevation = 3.dp) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column {
-                            Text("Total", style = MaterialTheme.typography.bodyMedium)
-                            Text(
-                                text = "$${completedState.total}",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                        Button(onClick = onCheckoutClick) {
-                            Text("Checkout")
-                        }
-                    }
-                }
-            }
-        },
     ) { paddingValues ->
         when (val currentState = state) {
             is CartState.Initial -> {
@@ -133,20 +105,50 @@ fun CartScreen(
             }
 
             is CartState.Completed -> {
-                LazyColumn(
+                // Column wraps both the list and the checkout bar so they
+                // stack vertically and respect the Scaffold's paddingValues.
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(currentState.items, key = { it.product.id }) { cartItem ->
-                        CartItemCard(
-                            cartItem = cartItem,
-                            onIncrease = { viewModel.increaseQuantity(cartItem.product.id) },
-                            onDecrease = { viewModel.decreaseQuantity(cartItem.product.id) },
-                            onRemove = { viewModel.removeItem(cartItem.product.id) },
-                        )
+                    // Checkout bar — pinned to the top of the Column
+                    Surface(tonalElevation = 3.dp) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column {
+                                Text("Total", style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    text = "$${currentState.total}",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                            Button(onClick = onCheckoutClick) {
+                                Text("Checkout")
+                            }
+                        }
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        items(currentState.items, key = { it.product.id }) { cartItem ->
+                            CartItemCard(
+                                cartItem = cartItem,
+                                onIncrease = { viewModel.increaseQuantity(cartItem.product.id) },
+                                onDecrease = { viewModel.decreaseQuantity(cartItem.product.id) },
+                                onRemove = { viewModel.removeItem(cartItem.product.id) },
+                            )
+                        }
                     }
                 }
             }

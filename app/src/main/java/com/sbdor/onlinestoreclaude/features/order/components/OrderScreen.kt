@@ -29,16 +29,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sbdor.onlinestoreclaude.core.SharedPreferencesManager
+import com.sbdor.onlinestoreclaude.di.AppModule
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderState
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderViewModel
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderViewModelFactory
 import com.sbdor.onlinestoreclaude.features.order.data.OrderRepositoryImpl
+import dagger.hilt.android.EntryPointAccessors
 
 // ---------------------------------------------------------------------------
 // How @AssistedInject changes the ViewModel creation in the Screen
@@ -68,10 +72,20 @@ import com.sbdor.onlinestoreclaude.features.order.data.OrderRepositoryImpl
 fun OrderScreen(
     onBackClick: () -> Unit,
     onContinueShoppingClick: () -> Unit,
-    viewModel: OrderViewModel = hiltViewModel<OrderViewModel, OrderViewModelFactory> { factory ->
-        factory.create(OrderRepositoryImpl())  // passes the remote implementation at runtime
-    }
 ) {
+    // Pull SharedPreferencesManager from Hilt's graph via EntryPoint.
+    // This is needed because OrderRepositoryImpl requires it in its constructor,
+    // but we are instantiating it manually here (not via Hilt's @Binds).
+    // remember{} ensures we only resolve it once, not on every recomposition.
+    val context = LocalContext.current
+    val sharedPreferencesManager = remember {
+        SharedPreferencesManager(context)
+    }
+
+    val viewModel = hiltViewModel<OrderViewModel, OrderViewModelFactory> { factory ->
+        factory.create(OrderRepositoryImpl(sharedPreferencesManager))
+    }
+
     val state by viewModel.state.collectAsState()
 
     // CURRENT BEHAVIOR:

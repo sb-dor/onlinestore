@@ -54,7 +54,10 @@ interface OrderViewModelFactory {
 // orderRepository HAS @Assisted — the caller (OrderScreen) provides it at creation time.
 @HiltViewModel(assistedFactory = OrderViewModelFactory::class)
 class OrderViewModel @AssistedInject constructor(
+    /// manually injecting this orderRepository
     @Assisted private val orderRepository: IOrderRepository,
+
+    /// will be automatically injected via hilt
     private val cartRepository: ICartRepository,
 ) : ViewModel() {
 

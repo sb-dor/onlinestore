@@ -43,7 +43,7 @@ fun CartItemCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = cartItem.product.name,
+                    text = cartItem.product.name ?: "",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                 )

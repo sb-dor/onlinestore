@@ -47,7 +47,7 @@ fun ProductCard(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
-                        text = product.category.displayName,
+                        text = product.category?.displayName ?: "",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -57,7 +57,7 @@ fun ProductCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = product.name,
+                text = product.name ?: "",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -67,7 +67,7 @@ fun ProductCard(
             Spacer(modifier = Modifier.height(2.dp))
 
             Text(
-                text = product.description,
+                text = product.description ?: "",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2,

@@ -8,5 +8,5 @@ data class CartItem(
 ) {
     // Computed property — no need to store this value, it's derived from other fields.
     // Equivalent to a getter in Dart: double get totalPrice => product.price * quantity;
-    val totalPrice: Double get() = product.price * quantity
+    val totalPrice: Double get() = (product.price ?: 0.0) * quantity
 }

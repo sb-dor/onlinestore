@@ -9,4 +9,6 @@ interface IProductRepository {
     suspend fun getProducts(): List<Product>
     suspend fun getProductById(id: Int): Product?
     suspend fun searchProducts(query: String, category: Category): List<Product>
+
+    suspend fun saveProduct(product: Product): Boolean
 }

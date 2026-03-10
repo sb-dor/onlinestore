@@ -4,10 +4,10 @@ package com.sbdor.onlinestoreclaude.features.products.models
 // Equivalent to @immutable class with copyWith in Flutter/Dart.
 data class Product(
     val id: Int,
-    val name: String,
-    val description: String,
-    val price: Double,
-    val category: Category,
+    val name: String?= null,
+    val description: String?= null,
+    val price: Double?= null,
+    val category: Category?= null,
     val rating: Float = 0f,
     val reviewCount: Int = 0,
 )

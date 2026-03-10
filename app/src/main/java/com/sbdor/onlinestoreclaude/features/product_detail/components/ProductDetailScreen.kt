@@ -133,7 +133,7 @@ fun ProductDetailScreen(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
-                                text = product.category.displayName,
+                                text = product.category?.displayName ?: "",
                                 style = MaterialTheme.typography.headlineMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -142,7 +142,7 @@ fun ProductDetailScreen(
 
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = product.name,
+                            text = product.name ?: "",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                         )
@@ -175,7 +175,7 @@ fun ProductDetailScreen(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = product.description,
+                            text = product.description ?: "",
                             style = MaterialTheme.typography.bodyMedium,
                         )
 

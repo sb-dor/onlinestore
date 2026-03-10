@@ -30,9 +30,14 @@ class FakeProductRepositoryImpl : IProductRepository {
 
     override suspend fun searchProducts(query: String, category: Category): List<Product> {
         return fakeProducts.filter { product ->
-            val matchesQuery = query.isBlank() || product.name.contains(query, ignoreCase = true)
+            val matchesQuery =
+                query.isBlank() || product.name?.contains(query, ignoreCase = true) ?: false
             val matchesCategory = category == Category.ALL || product.category == category
             matchesQuery && matchesCategory
         }
+    }
+
+    override suspend fun saveProduct(product: Product): Boolean {
+        TODO("Not yet implemented")
     }
 }

@@ -1,5 +1,6 @@
 package com.sbdor.onlinestoreclaude.navigation
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -11,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -98,10 +100,13 @@ fun AppNavigation() {
                 }
             }
         },
-    ) { _ ->
+    ) { paddingValues ->
+        // paddingValues includes the bottom navigation bar height.
+        // Applying it here ensures every screen's content stops above the nav bar.
         NavHost(
             navController = navController,
             startDestination = AppRoute.Products.route,
+            modifier = Modifier.padding(paddingValues),
         ) {
             composable(AppRoute.Products.route) {
                 ProductsScreen(

@@ -21,6 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,6 +33,9 @@ import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.order_history.components.components.OrderHistoryCard
 import com.sbdor.onlinestoreclaude.features.order_history.controller.OrderHistoryState
 import com.sbdor.onlinestoreclaude.features.order_history.controller.OrderHistoryViewModel
+import com.sbdor.onlinestoreclaude.features.order_history_deletion.components.DeleteOrderDialog
+import com.sbdor.onlinestoreclaude.features.order_history_deletion.controller.OrderHistoryDeletionState
+import com.sbdor.onlinestoreclaude.features.order_history_deletion.controller.OrderHistoryDeletionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +43,7 @@ fun OrderHistoryScreen(
     onBackClick: () -> Unit,
 ) {
     val container = LocalDependenciesScope.current
+
     val viewModel: OrderHistoryViewModel = viewModel(
         factory = viewModelFactory {
             OrderHistoryViewModel(container.orderHistoryRepository)
@@ -45,11 +52,27 @@ fun OrderHistoryScreen(
 
     val state by viewModel.state.collectAsState()
 
-    // LaunchedEffect(Unit) — load order history once when screen enters composition.
-    // viewModel.load() is a normal fun (not suspend) so LaunchedEffect here is used
-    // purely to run it once, not to provide coroutine context.
+    // Load history once when screen appears
     LaunchedEffect(Unit) {
         viewModel.load()
+    }
+
+    /// I do not know why, but it's the only way
+    // Which order the user has tapped "delete" on.
+    // null = no dialog shown. Non-null = dialog is open for that order ID.
+    var orderIdPendingDeletion by remember { mutableStateOf<Int?>(null) }
+    // Show the confirmation dialog only when an order ID is pending deletion
+    orderIdPendingDeletion?.let { orderId ->
+        DeleteOrderDialog(
+            orderId = orderId,
+            onSuccess = {
+                viewModel.load()
+                orderIdPendingDeletion = null  // close dialog
+            },
+            onDismiss = {
+                orderIdPendingDeletion = null  // close dialog without deleting
+            },
+        )
     }
 
     Scaffold(
@@ -93,7 +116,6 @@ fun OrderHistoryScreen(
 
             is OrderHistoryState.Completed -> {
                 if (currentState.orderHistory.isEmpty()) {
-                    // Empty state
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -116,10 +138,13 @@ fun OrderHistoryScreen(
                     ) {
                         items(
                             items = currentState.orderHistory,
-                            // key = stable ID prevents unnecessary recompositions
-                            // when the list changes (same as Flutter's key: ValueKey(order.id))
                         ) { order ->
-                            OrderHistoryCard(order = order)
+                            OrderHistoryCard(
+                                order = order,
+                                // tapping the delete icon sets this order as pending
+                                // which triggers the dialog to appear
+                                onDeleteClick = { orderIdPendingDeletion = order.id },
+                            )
                         }
                     }
                 }

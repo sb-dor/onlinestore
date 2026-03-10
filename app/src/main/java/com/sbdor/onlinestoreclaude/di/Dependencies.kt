@@ -10,6 +10,8 @@ import com.sbdor.onlinestoreclaude.features.order.data.IOrderRepository
 import com.sbdor.onlinestoreclaude.features.order.data.OrderRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.order_history.data.IOrderHistoryRepository
 import com.sbdor.onlinestoreclaude.features.order_history.data.OrderHistoryImpl
+import com.sbdor.onlinestoreclaude.features.order_history_deletion.data.IOrderHistoryDeletionRepository
+import com.sbdor.onlinestoreclaude.features.order_history_deletion.data.OrderHistoryDeletionRepository
 import com.sbdor.onlinestoreclaude.features.products.data.IProductRepository
 import com.sbdor.onlinestoreclaude.features.products.data.ProductRepositoryImpl
 
@@ -62,5 +64,6 @@ class Dependencies(context: Context) {
     // HILT EQUIVALENT: Hilt would have injected SharedPreferencesManager automatically
     // because it is @Singleton — here we pass it by hand.
     val orderHistoryRepository: IOrderHistoryRepository = OrderHistoryImpl(sharedPreferencesManager)
+    val orderHistoryDeletionRepository: IOrderHistoryDeletionRepository = OrderHistoryDeletionRepository(sharedPreferencesManager)
     val orderRepository: IOrderRepository = OrderRepositoryImpl(sharedPreferencesManager)
 }

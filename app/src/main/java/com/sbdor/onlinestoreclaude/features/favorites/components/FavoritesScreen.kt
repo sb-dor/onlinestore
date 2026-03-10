@@ -23,10 +23,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sbdor.onlinestoreclaude.core.LocalAppContainer
+import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.favorites.controller.FavoritesState
 import com.sbdor.onlinestoreclaude.features.favorites.controller.FavoritesViewModel
 import com.sbdor.onlinestoreclaude.features.products.components.components.ProductCard
@@ -36,8 +35,9 @@ import com.sbdor.onlinestoreclaude.features.products.components.components.Produ
 fun FavoritesScreen(
     onBackClick: () -> Unit,
 ) {
-    val container = LocalAppContainer.current
-    val favoritesViewModel: FavoritesViewModel = viewModel(factory = FavoritesViewModel.factory(container.favoritesRepository))
+    val container = LocalDependenciesScope.current
+    val favoritesViewModel: FavoritesViewModel =
+        viewModel(factory = FavoritesViewModel.factory(container.favoritesRepository))
     val state by favoritesViewModel.state.collectAsState()
 
     // LaunchedEffect(Unit) here serves a DIFFERENT purpose than in CartScreen.
@@ -76,9 +76,10 @@ fun FavoritesScreen(
                         Text("No favorites")
                     }
                 } else {
-                    Box(modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
                     ) {
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),

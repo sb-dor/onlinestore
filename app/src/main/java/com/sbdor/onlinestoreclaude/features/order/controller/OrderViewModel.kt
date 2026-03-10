@@ -1,6 +1,7 @@
 package com.sbdor.onlinestoreclaude.features.order.controller
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -15,15 +16,6 @@ class OrderViewModel(
     private val orderRepository: IOrderRepository,
     private val cartRepository: ICartRepository,
 ) : ViewModel() {
-
-    companion object {
-        fun factory(
-            orderRepository: IOrderRepository,
-            cartRepository: ICartRepository,
-        ) = viewModelFactory {
-            initializer { OrderViewModel(orderRepository, cartRepository) }
-        }
-    }
 
     private val _state = MutableStateFlow<OrderState>(OrderState.Initial)
     val state: StateFlow<OrderState> = _state.asStateFlow()

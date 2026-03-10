@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,7 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sbdor.onlinestoreclaude.core.LocalAppContainer
+import com.sbdor.onlinestoreclaude.core.viewModelFactory
+import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.cart.controller.CartState
 import com.sbdor.onlinestoreclaude.features.cart.controller.CartViewModel
 import com.sbdor.onlinestoreclaude.features.cart.components.components.CartItemCard
@@ -45,8 +45,13 @@ fun CartScreen(
     onBackClick: () -> Unit,
     onCheckoutClick: () -> Unit,
 ) {
-    val container = LocalAppContainer.current
-    val viewModel: CartViewModel = viewModel(factory = CartViewModel.factory(container.cartRepository))
+    val container = LocalDependenciesScope.current
+//    val viewModel: CartViewModel = viewModel(factory = CartViewModel.factory(container.cartRepository))
+    val viewModel: CartViewModel = viewModel(
+        factory = viewModelFactory {
+            CartViewModel(container.cartRepository)
+        }
+    )
     val state by viewModel.state.collectAsState()
 
     // LaunchedEffect(Unit) = runs once when the screen enters composition (like initState in Flutter).

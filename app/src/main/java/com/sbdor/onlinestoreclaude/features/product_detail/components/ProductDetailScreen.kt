@@ -34,7 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sbdor.onlinestoreclaude.core.LocalAppContainer
+import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.product_detail.controller.ProductDetailState
 import com.sbdor.onlinestoreclaude.features.product_detail.controller.ProductDetailViewModel
 
@@ -45,7 +45,7 @@ fun ProductDetailScreen(
     onBackClick: () -> Unit,
     onCartClick: () -> Unit,
 ) {
-    val container = LocalAppContainer.current
+    val container = LocalDependenciesScope.current
     val viewModel: ProductDetailViewModel = viewModel(
         factory = ProductDetailViewModel.factory(
             productId = productId,

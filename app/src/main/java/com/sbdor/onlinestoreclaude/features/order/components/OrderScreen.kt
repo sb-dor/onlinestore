@@ -34,7 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sbdor.onlinestoreclaude.core.LocalAppContainer
+import com.sbdor.onlinestoreclaude.core.viewModelFactory
+import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderState
 import com.sbdor.onlinestoreclaude.features.order.controller.OrderViewModel
 
@@ -44,12 +45,11 @@ fun OrderScreen(
     onBackClick: () -> Unit,
     onContinueShoppingClick: () -> Unit,
 ) {
-    val container = LocalAppContainer.current
+    val dependencies = LocalDependenciesScope.current
     val viewModel: OrderViewModel = viewModel(
-        factory = OrderViewModel.factory(
-            orderRepository = container.orderRepository,
-            cartRepository = container.cartRepository,
-        )
+        factory = viewModelFactory {
+            OrderViewModel(dependencies.orderRepository, dependencies.cartRepository)
+        }
     )
 
     val state by viewModel.state.collectAsState()

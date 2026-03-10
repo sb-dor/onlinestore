@@ -25,7 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sbdor.onlinestoreclaude.core.LocalAppContainer
+import com.sbdor.onlinestoreclaude.core.viewModelFactory
+import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.order_history.components.components.OrderHistoryCard
 import com.sbdor.onlinestoreclaude.features.order_history.controller.OrderHistoryState
 import com.sbdor.onlinestoreclaude.features.order_history.controller.OrderHistoryViewModel
@@ -35,9 +36,11 @@ import com.sbdor.onlinestoreclaude.features.order_history.controller.OrderHistor
 fun OrderHistoryScreen(
     onBackClick: () -> Unit,
 ) {
-    val container = LocalAppContainer.current
+    val container = LocalDependenciesScope.current
     val viewModel: OrderHistoryViewModel = viewModel(
-        factory = OrderHistoryViewModel.factory(container.orderHistoryRepository)
+        factory = viewModelFactory {
+            OrderHistoryViewModel(container.orderHistoryRepository)
+        }
     )
 
     val state by viewModel.state.collectAsState()

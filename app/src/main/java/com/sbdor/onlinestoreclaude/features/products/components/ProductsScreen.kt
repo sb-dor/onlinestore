@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sbdor.onlinestoreclaude.core.LocalAppContainer
+import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.products.controller.ProductsState
 import com.sbdor.onlinestoreclaude.features.products.controller.ProductsViewModel
 import com.sbdor.onlinestoreclaude.features.products.models.Category
@@ -45,7 +45,7 @@ fun ProductsScreen(
     onProductClick: (Int) -> Unit,
     onFavoritesClick: () -> Unit,
 ) {
-    val container = LocalAppContainer.current
+    val container = LocalDependenciesScope.current
     val viewModel: ProductsViewModel = viewModel(factory = ProductsViewModel.factory(container.productRepository))
     // collectAsState() = subscribes to the StateFlow and recomposes when it changes.
     // Equivalent to ListenableBuilder or setState in Flutter.
@@ -109,7 +109,7 @@ fun ProductsScreen(
 
             // NOTICE: there is no LaunchedEffect here to trigger load().
             // ProductsViewModel calls load() in its init{} block, so data loads automatically
-            // the moment Hilt creates the ViewModel — before this screen even renders.
+            // the moment the ViewModel is created — before this screen even renders.
             // Contrast with CartScreen and FavoritesScreen which use LaunchedEffect(Unit)
             // to trigger load() because their ViewModels do NOT have an init block.
 

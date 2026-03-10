@@ -8,15 +8,45 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+// ---------------------------------------------------------------------------
+// CartViewModel — demonstrates OPTION A for manual DI (no companion factory)
+// ---------------------------------------------------------------------------
+// The constructor receives ICartRepository directly — this is constructor injection.
+// The screen creates the ViewModel using the top-level viewModelFactory() helper:
+//
+//   val viewModel: CartViewModel = viewModel(
+//       factory = viewModelFactory { CartViewModel(container.cartRepository) }
+//   )
+//
+// OPTION B (companion object factory) is shown below in comments.
+// Both options work identically — the difference is only where the factory lives.
+//
+// HILT EQUIVALENT:
+//   @HiltViewModel
+//   class CartViewModel @Inject constructor(
+//       private val cartRepository: ICartRepository,  // Hilt provides this automatically
+//   ) : ViewModel()
+//
+//   Screen used: val viewModel: CartViewModel = hiltViewModel()
+//   No factory needed — Hilt generated it behind the scenes.
+// ---------------------------------------------------------------------------
 class CartViewModel(
     private val cartRepository: ICartRepository,
 ) : ViewModel() {
 
-    companion object {
-        fun factory(cartRepository: ICartRepository) = viewModelFactory {
-            initializer { CartViewModel(cartRepository) }
-        }
-    }
+    // OPTION B — companion object factory (alternative to inline viewModelFactory in screen).
+    // Uncomment this and remove the viewModelFactory{} call in CartScreen to switch styles.
+    //
+    // companion object {
+    //     fun factory(cartRepository: ICartRepository) = viewModelFactory {
+    //         initializer { CartViewModel(cartRepository) }
+    //     }
+    // }
+    //
+    // Screen would then use:
+    //   val viewModel: CartViewModel = viewModel(
+    //       factory = CartViewModel.factory(container.cartRepository)
+    //   )
 
     private val _state = MutableStateFlow<CartState>(CartState.Initial)
     val state: StateFlow<CartState> = _state.asStateFlow()

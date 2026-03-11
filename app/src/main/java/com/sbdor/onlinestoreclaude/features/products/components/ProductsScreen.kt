@@ -12,15 +12,18 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sbdor.onlinestoreclaude.core.viewModelFactory
 import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.products.controller.ProductsState
 import com.sbdor.onlinestoreclaude.features.products.controller.ProductsViewModel
@@ -42,14 +46,15 @@ import com.sbdor.onlinestoreclaude.features.products.components.components.Searc
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductsScreen(
-    onProductClick: (Int) -> Unit,
-    onFavoritesClick: () -> Unit,
+    onProductClick: (Int) -> Unit, onFavoritesClick: () -> Unit, onProductAddClick: () -> Unit
 ) {
     val container = LocalDependenciesScope.current
-    val viewModel: ProductsViewModel = viewModel(factory = ProductsViewModel.factory(container.productRepository))
+    val productsViewModel: ProductsViewModel = viewModel(factory = viewModelFactory {
+        container.productsViewModel
+    })
     // collectAsState() = subscribes to the StateFlow and recomposes when it changes.
     // Equivalent to ListenableBuilder or setState in Flutter.
-    val state by viewModel.state.collectAsState()
+    val state by productsViewModel.state.collectAsState()
 
     // remember = stores state that survives recomposition but is LOST on screen recreation
     // (e.g. process death, screen removed from back stack).
@@ -79,7 +84,12 @@ fun ProductsScreen(
                 },
             )
         },
-    ) { paddingValues ->
+
+        floatingActionButton = {
+            FloatingActionButton(onClick = onProductAddClick) {
+                Icon(Icons.Default.Add, contentDescription = "Add Product")
+            }
+        }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -91,7 +101,7 @@ fun ProductsScreen(
                 query = searchQuery,
                 onQueryChange = { query ->
                     searchQuery = query
-                    viewModel.load(query = query, category = selectedCategory)
+                    productsViewModel.load(query = query, category = selectedCategory)
                 },
             )
 
@@ -101,7 +111,7 @@ fun ProductsScreen(
                 selectedCategory = selectedCategory,
                 onCategorySelected = { category ->
                     selectedCategory = category
-                    viewModel.load(query = searchQuery, category = category)
+                    productsViewModel.load(query = searchQuery, category = category)
                 },
             )
 
@@ -146,17 +156,23 @@ fun ProductsScreen(
                             Text("No products found")
                         }
                     } else {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            contentPadding = PaddingValues(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            items(currentState.products, key = { it.id }) { product ->
-                                ProductCard(
-                                    product = product,
-                                    onClick = { onProductClick(product.id) },
-                                )
+                        PullToRefreshBox(
+                            isRefreshing = isLoad,
+                            onRefresh = {
+                                productsViewModel.load()
+                            }) {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                contentPadding = PaddingValues(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                items(currentState.products, key = { it.id }) { product ->
+                                    ProductCard(
+                                        product = product,
+                                        onClick = { onProductClick(product.id) },
+                                    )
+                                }
                             }
                         }
                     }

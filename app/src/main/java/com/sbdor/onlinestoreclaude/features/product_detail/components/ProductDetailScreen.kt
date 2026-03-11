@@ -37,6 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.product_detail.controller.ProductDetailState
 import com.sbdor.onlinestoreclaude.features.product_detail.controller.ProductDetailViewModel
+import com.sbdor.onlinestoreclaude.features.products.models.Product
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +45,7 @@ fun ProductDetailScreen(
     productId: Int,
     onBackClick: () -> Unit,
     onCartClick: () -> Unit,
+    onEditButtonClick: (product: Product) -> Unit,
 ) {
     val container = LocalDependenciesScope.current
     val viewModel: ProductDetailViewModel = viewModel(
@@ -198,6 +200,16 @@ fun ProductDetailScreen(
                         ) {
                             Text(
                                 text = if (currentState.addedToFavorites) "Added to Favorites ✓" else "Add to Favorites",
+                            )
+                        }
+
+                        Button(
+                            onClick = { onEditButtonClick(product) },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !currentState.addedToFavorites,
+                        ) {
+                            Text(
+                                text = "Edit product",
                             )
                         }
                     }

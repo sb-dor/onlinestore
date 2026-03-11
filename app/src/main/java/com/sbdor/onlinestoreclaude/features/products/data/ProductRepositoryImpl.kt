@@ -3,6 +3,7 @@ package com.sbdor.onlinestoreclaude.features.products.data
 import com.sbdor.onlinestoreclaude.features.products.models.Category
 import com.sbdor.onlinestoreclaude.features.products.models.Product
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 class ProductRepositoryImpl : IProductRepository {
 
@@ -115,7 +116,8 @@ class ProductRepositoryImpl : IProductRepository {
     }
 
     override suspend fun saveProduct(product: Product): Boolean {
-        fakeProducts.add(product)
+        val changeIdProduct = product.copy(id = Random.nextInt())
+        fakeProducts.add(changeIdProduct)
         delay(1000)
         return true
     }

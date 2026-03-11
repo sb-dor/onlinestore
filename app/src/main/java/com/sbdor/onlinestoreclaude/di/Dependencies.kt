@@ -1,6 +1,7 @@
 package com.sbdor.onlinestoreclaude.di
 
 import android.content.Context
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sbdor.onlinestoreclaude.core.SharedPreferencesManager
 import com.sbdor.onlinestoreclaude.features.cart.data.CartRepositoryImpl
 import com.sbdor.onlinestoreclaude.features.cart.data.ICartRepository
@@ -12,6 +13,7 @@ import com.sbdor.onlinestoreclaude.features.order_history.data.IOrderHistoryRepo
 import com.sbdor.onlinestoreclaude.features.order_history.data.OrderHistoryImpl
 import com.sbdor.onlinestoreclaude.features.order_history_deletion.data.IOrderHistoryDeletionRepository
 import com.sbdor.onlinestoreclaude.features.order_history_deletion.data.OrderHistoryDeletionRepository
+import com.sbdor.onlinestoreclaude.features.products.controller.ProductsViewModel
 import com.sbdor.onlinestoreclaude.features.products.data.IProductRepository
 import com.sbdor.onlinestoreclaude.features.products.data.ProductRepositoryImpl
 
@@ -59,6 +61,8 @@ class Dependencies(context: Context) {
     // implementation app-wide without touching any other file.
     val favoritesRepository: IFavoritesRepository = FavoritesRepositoryImpl()
     val productRepository: IProductRepository = ProductRepositoryImpl()
+
+    val productsViewModel: ProductsViewModel = ProductsViewModel(productRepository)
 
     // OrderHistoryImpl needs SharedPreferencesManager, so we pass it explicitly.
     // HILT EQUIVALENT: Hilt would have injected SharedPreferencesManager automatically

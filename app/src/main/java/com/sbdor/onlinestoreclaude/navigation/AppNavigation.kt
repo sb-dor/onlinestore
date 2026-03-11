@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -22,12 +23,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.sbdor.onlinestoreclaude.core.viewModelFactory
+import com.sbdor.onlinestoreclaude.di.LocalDependenciesScope
 import com.sbdor.onlinestoreclaude.features.cart.components.CartScreen
 import com.sbdor.onlinestoreclaude.features.favorites.components.FavoritesScreen
 import com.sbdor.onlinestoreclaude.features.order.components.OrderScreen
 import com.sbdor.onlinestoreclaude.features.order_history.components.OrderHistoryScreen
+import com.sbdor.onlinestoreclaude.features.product_creation.components.ProductCreationScreen
+import com.sbdor.onlinestoreclaude.features.product_creation.controller.ProductCreationState
 import com.sbdor.onlinestoreclaude.features.product_detail.components.ProductDetailScreen
 import com.sbdor.onlinestoreclaude.features.products.components.ProductsScreen
+import com.sbdor.onlinestoreclaude.features.products.controller.ProductsViewModel
 
 // Defines each bottom navigation tab: its route, icon, and label.
 // Keeping this as a data class rather than a sealed class because tabs are
@@ -63,6 +69,11 @@ fun AppNavigation() {
     val showBottomBar = bottomNavItems.any { item ->
         currentDestination?.hierarchy?.any { it.route == item.route } == true
     }
+
+    val container = LocalDependenciesScope.current
+    val productsViewModel: ProductsViewModel = viewModel(factory = viewModelFactory {
+        container.productsViewModel
+    })
 
     Scaffold(
         bottomBar = {
@@ -109,14 +120,13 @@ fun AppNavigation() {
             modifier = Modifier.padding(paddingValues),
         ) {
             composable(AppRoute.Products.route) {
-                ProductsScreen(
-                    onProductClick = { productId ->
-                        navController.navigate(AppRoute.ProductDetail.createRoute(productId))
-                    },
-                    onFavoritesClick = {
-                        navController.navigate(AppRoute.Favorites.route)
-                    },
-                )
+                ProductsScreen(onProductClick = { productId ->
+                    navController.navigate(AppRoute.ProductDetail.createRoute(productId))
+                }, onFavoritesClick = {
+                    navController.navigate(AppRoute.Favorites.route)
+                }, onProductAddClick = {
+                    navController.navigate(AppRoute.ProductCreation.route)
+                })
             }
 
             composable(
@@ -136,7 +146,29 @@ fun AppNavigation() {
                             restoreState = true
                         }
                     },
-                )
+                    onEditButtonClick = { product ->
+                        navController.navigate(
+                            AppRoute.ProductCreation.createRoute(
+                                product.id
+                            )
+                        )
+                    })
+            }
+
+            composable(
+                route = AppRoute.ProductCreation.route,
+                arguments = listOf(navArgument("productId") {
+                    type = NavType.IntType
+                    defaultValue = -1
+                }),
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getInt("productId")?.takeIf { it != -1 }
+                // productId == null → creating a new product
+                // productId != null → editing an existing product
+                ProductCreationScreen(
+                    productId = productId,
+                    onBackClick = { navController.popBackStack() },
+                    onSuccessfullyCreation = { productsViewModel.load() })
             }
 
             composable(AppRoute.Cart.route) {

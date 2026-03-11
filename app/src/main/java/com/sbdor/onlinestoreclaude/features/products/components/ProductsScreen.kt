@@ -157,7 +157,7 @@ fun ProductsScreen(
                         }
                     } else {
                         PullToRefreshBox(
-                            isRefreshing = isLoad,
+                            isRefreshing = false,
                             onRefresh = {
                                 productsViewModel.load()
                             }) {

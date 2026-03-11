@@ -101,11 +101,15 @@ class ProductRepositoryImpl : IProductRepository {
         ),
     )
 
-    override suspend fun getProducts(): List<Product> = fakeProducts
+    override suspend fun getProducts(): List<Product> {
+        delay(1000)
+        return fakeProducts;
+    }
 
     override suspend fun getProductById(id: Int): Product? = fakeProducts.find { it.id == id }
 
     override suspend fun searchProducts(query: String, category: Category): List<Product> {
+        delay(2000)
         return fakeProducts.filter { product ->
             val matchesQuery = query.isBlank() ||
                     product.name?.contains(query, ignoreCase = true) ?: false ||
@@ -116,8 +120,13 @@ class ProductRepositoryImpl : IProductRepository {
     }
 
     override suspend fun saveProduct(product: Product): Boolean {
-        val changeIdProduct = product.copy(id = Random.nextInt())
-        fakeProducts.add(changeIdProduct)
+        val productIndex = fakeProducts.indexOfFirst { it.id == product.id }
+        if (productIndex == -1) {
+            val changeIdProduct = product.copy(id = Random.nextInt())
+            fakeProducts.add(changeIdProduct)
+        } else {
+            fakeProducts[productIndex] = product.copy(id = product.id);
+        }
         delay(1000)
         return true
     }
